@@ -50,13 +50,13 @@ Vagrant.configure("2") do |config|
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
+  config.vm.provider "virtualbox" do |vb|
+    # Display the VirtualBox GUI when booting the machine
+    #vb.gui = true
+
+    # Customize the amount of memory on the VM:
+    vb.memory = "1024"
+  end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
@@ -66,7 +66,7 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y ca-certificates apt-transport-https
+    apt-get install -y ca-certificates apt-transport-https openjdk-8-jre-headless
 
     # add apt repos for unifi and mongodb
     echo 'deb http://www.ui.com/downloads/unifi/debian stable ubiquiti' | tee /etc/apt/sources.list.d/100-ubnt-unifi.list
@@ -76,7 +76,11 @@ Vagrant.configure("2") do |config|
     wget -qO - https://dl.ui.com/unifi/unifi-repo.gpg | apt-key add -
     wget -qO - https://www.mongodb.org/static/pgp/server-3.4.asc | apt-key add -
 
+    echo JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 | tee /etc/default/unifi
     apt-get update
     apt-get install -y unifi
+    systemctl daemon-reload
+    systemctl enable unifi
+    systemctl start unifi
   SHELL
 end

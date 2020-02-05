@@ -8,3 +8,8 @@ MongoDB 3.4 or older, but MongoDB only provides 4.x for Ubuntu 18.04._
 ## Usage
 
     $ vagrant up
+
+
+## Keystore
+
+    $ sudo keytool -genkey -keyalg RSA -alias selfsigned -keystore /usr/lib/unifi/data/keystore -storepass aircontrolenterprise -validity 365 -keysize 2048 -destalias unifi
