@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 molecule = {extras = ["docker"],version = "*"}
+ansible-lint = "*"
+flake8 = "*"
 
 [packages]
 
