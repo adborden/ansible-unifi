@@ -1,0 +1,57 @@
+---
+- name: install os dependencies
+  apt: name={{ packages }} state=present update_cache=true cache_valid_time={{ 24 * 3600 }}
+  vars:
+    packages:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - openjdk-8-jre-headless
+
+- name: install ubiquiti apt key
+  apt_key:
+    url: https://dl.ui.com/unifi/unifi-repo.gpg
+    state: present
+  register: apt_key_ubiquity
+
+- name: install ubiquiti apt repository
+  apt_repository:
+    repo: deb http://www.ui.com/downloads/unifi/debian stable ubiquiti
+    state: present
+  register: apt_repo_ubiquity
+
+- name: install mongodb apt key
+  apt_key:
+    url: https://www.mongodb.org/static/pgp/server-3.4.asc
+    state: present
+  register: apt_key_mongodb
+
+- name: install mongodb apt repository
+  apt_repository:
+    repo: deb https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/3.4 multiverse
+    state: present
+  register: apt_repo_mongodb
+
+- name: update apt repos
+  apt: update_cache=true
+  when: >-
+    apt_key_ubiquity is changed or
+    apt_repo_ubiquity is changed or
+    apt_key_mongodb is changed or
+    apt_repo_mongodb is changed
+
+- name: configure unifi with java 8
+  copy:
+    content: |
+      JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    dest: /etc/default/unifi
+    owner: root
+    group: root
+    mode: 0644
+
+- name: install unifi
+  apt: name=unifi state=present
+  register: install_unifi
+
+- name: enable unifi
+  systemd: name=unifi state=started enabled=true daemon_reload=yes
